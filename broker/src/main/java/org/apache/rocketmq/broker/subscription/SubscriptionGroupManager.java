@@ -30,7 +30,26 @@ import org.apache.rocketmq.common.subscription.SubscriptionGroupConfig;
 import org.apache.rocketmq.remoting.protocol.RemotingSerializable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
+/*
+{
+        "dataVersion":{
+                "counter":1,
+                "timestatmp":1429155593251
+        },
+        "subscriptionGroupTable":{
+                "QuickStartConsumer":{
+                        "brokerId":0,
+                        "consumeBroadcastEnable":true,
+                        "consumeEnable":true,
+                        "consumeFromMinEnable":true,
+                        "groupName":"QuickStartConsumer",
+                        "retryMaxTimes":16,
+                        "retryQueueNums":1,
+                        "whichBrokerWhenConsumeSlowly":1
+                }
+        }
+    }
+ */
 public class SubscriptionGroupManager extends ConfigManager {
     private static final Logger log = LoggerFactory.getLogger(LoggerName.BROKER_LOGGER_NAME);
 

@@ -141,35 +141,35 @@ public class BrokerController {
         final NettyClientConfig nettyClientConfig, //
         final MessageStoreConfig messageStoreConfig //
     ) {
-        this.brokerConfig = brokerConfig;
-        this.nettyServerConfig = nettyServerConfig;
-        this.nettyClientConfig = nettyClientConfig;
-        this.messageStoreConfig = messageStoreConfig;
-        this.consumerOffsetManager = new ConsumerOffsetManager(this);
-        this.topicConfigManager = new TopicConfigManager(this);
-        this.pullMessageProcessor = new PullMessageProcessor(this);
-        this.pullRequestHoldService = new PullRequestHoldService(this);
+        this.brokerConfig = brokerConfig;//broker配置
+        this.nettyServerConfig = nettyServerConfig;//netty服务配置
+        this.nettyClientConfig = nettyClientConfig;//netty客户端配置
+        this.messageStoreConfig = messageStoreConfig;//消息存储配置
+        this.consumerOffsetManager = new ConsumerOffsetManager(this);//消费进度管理
+        this.topicConfigManager = new TopicConfigManager(this);//Topic配置管理
+        this.pullMessageProcessor = new PullMessageProcessor(this);//拉消息请求处理
+        this.pullRequestHoldService = new PullRequestHoldService(this);//   拉消息请求管理，如果拉不到消息，则在这里Hold住，等待消息到来
         this.messageArrivingListener = new NotifyMessageArrivingListener(this.pullRequestHoldService);
-        this.consumerIdsChangeListener = new DefaultConsumerIdsChangeListener(this);
-        this.consumerManager = new ConsumerManager(this.consumerIdsChangeListener);
+        this.consumerIdsChangeListener = new DefaultConsumerIdsChangeListener(this);//ConsumerId列表变化，通知所有Consumer
+        this.consumerManager = new ConsumerManager(this.consumerIdsChangeListener);//Consumer连接、订阅关系管理
         this.consumerFilterManager = new ConsumerFilterManager(this);
-        this.producerManager = new ProducerManager();
-        this.clientHousekeepingService = new ClientHousekeepingService(this);
-        this.broker2Client = new Broker2Client(this);
-        this.subscriptionGroupManager = new SubscriptionGroupManager(this);
-        this.brokerOuterAPI = new BrokerOuterAPI(nettyClientConfig);
-        this.filterServerManager = new FilterServerManager(this);
+        this.producerManager = new ProducerManager();//管理Producer组及各个Producer连接
+        this.clientHousekeepingService = new ClientHousekeepingService(this);//   定期检测客户端连接，清除不活动的连接
+        this.broker2Client = new Broker2Client(this);//Broker主动调用客户端接口
+        this.subscriptionGroupManager = new SubscriptionGroupManager(this);// 用来管理订阅组，包括订阅权限等
+        this.brokerOuterAPI = new BrokerOuterAPI(nettyClientConfig);// Broker对外调用的API封装
+        this.filterServerManager = new FilterServerManager(this);//过滤服务管理
 
-        this.slaveSynchronize = new SlaveSynchronize(this);
+        this.slaveSynchronize = new SlaveSynchronize(this);//Slave从Master同步信息（非消息）
 
-        this.sendThreadPoolQueue = new LinkedBlockingQueue<Runnable>(this.brokerConfig.getSendThreadPoolQueueCapacity());
+        this.sendThreadPoolQueue = new LinkedBlockingQueue<Runnable>(this.brokerConfig.getSendThreadPoolQueueCapacity());//初始化发送消息对应的线程池阻塞队列size
 
-        this.pullThreadPoolQueue = new LinkedBlockingQueue<Runnable>(this.brokerConfig.getPullThreadPoolQueueCapacity());
+        this.pullThreadPoolQueue = new LinkedBlockingQueue<Runnable>(this.brokerConfig.getPullThreadPoolQueueCapacity());// 初始化订阅消息对应的线程池阻塞队列size
         this.clientManagerThreadPoolQueue = new LinkedBlockingQueue<Runnable>(this.brokerConfig.getClientManagerThreadPoolQueueCapacity());
         this.consumerManagerThreadPoolQueue = new LinkedBlockingQueue<Runnable>(this.brokerConfig.getConsumerManagerThreadPoolQueueCapacity());
 
         this.brokerStatsManager = new BrokerStatsManager(this.brokerConfig.getBrokerClusterName());
-        this.setStoreHost(new InetSocketAddress(this.getBrokerConfig().getBrokerIP1(), this.getNettyServerConfig().getListenPort()));
+        this.setStoreHost(new InetSocketAddress(this.getBrokerConfig().getBrokerIP1(), this.getNettyServerConfig().getListenPort()));//broker 状态管理
 
         this.brokerFastFailure = new BrokerFastFailure(this);
         this.configuration = new Configuration(
@@ -428,7 +428,7 @@ public class BrokerController {
          */
         ConsumerManageProcessor consumerManageProcessor = new ConsumerManageProcessor(this);
         this.remotingServer.registerProcessor(RequestCode.GET_CONSUMER_LIST_BY_GROUP, consumerManageProcessor, this.consumerManageExecutor);
-        this.remotingServer.registerProcessor(RequestCode.UPDATE_CONSUMER_OFFSET, consumerManageProcessor, this.consumerManageExecutor);
+        this.remotingServer.registerProcessor(RequestCode.UPDATE_CONSUMER_OFFSET, consumerManageProcessor, this.consumerManageExecutor);//Offset存储更新转移到ClientProcessor处理
         this.remotingServer.registerProcessor(RequestCode.QUERY_CONSUMER_OFFSET, consumerManageProcessor, this.consumerManageExecutor);
 
         this.fastRemotingServer.registerProcessor(RequestCode.GET_CONSUMER_LIST_BY_GROUP, consumerManageProcessor, this.consumerManageExecutor);
@@ -446,6 +446,7 @@ public class BrokerController {
          */
         AdminBrokerProcessor adminProcessor = new AdminBrokerProcessor(this);
         this.remotingServer.registerDefaultProcessor(adminProcessor, this.adminBrokerExecutor);
+        //根据RequestCode注册不同的处理场景 个人感觉这种模式很不错 扩展性比较强 入口统一易维护
         this.fastRemotingServer.registerDefaultProcessor(adminProcessor, this.adminBrokerExecutor);
     }
 

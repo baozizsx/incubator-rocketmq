@@ -124,6 +124,7 @@ public class BrokerStartup {
 
             MixAll.properties2Object(ServerUtil.commandLine2Properties(commandLine), brokerConfig);
 
+            brokerConfig.setRocketmqHome("D:\\stree\\incubator-rocketmq\\distribution\\target\\apache-rocketmq");
             if (null == brokerConfig.getRocketmqHome()) {
                 System.out.printf("Please set the " + MixAll.ROCKETMQ_HOME_ENV
                     + " variable in your environment to match the location of the RocketMQ installation");

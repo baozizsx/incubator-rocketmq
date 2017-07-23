@@ -108,34 +108,35 @@ public class DefaultMessageStore implements MessageStore {
         final MessageArrivingListener messageArrivingListener, final BrokerConfig brokerConfig) throws IOException {
         this.messageArrivingListener = messageArrivingListener;
         this.brokerConfig = brokerConfig;
-        this.messageStoreConfig = messageStoreConfig;
-        this.brokerStatsManager = brokerStatsManager;
-        this.allocateMappedFileService = new AllocateMappedFileService(this);
-        this.commitLog = new CommitLog(this);
-        this.consumeQueueTable = new ConcurrentHashMap<>(32);
+        this.messageStoreConfig = messageStoreConfig;//消息存储配置
+        this.brokerStatsManager = brokerStatsManager;//broker状态管理
+        this.allocateMappedFileService = new AllocateMappedFileService(this);//Pagecache文件封装 就是NIO的MappedByteBuffer内存映射
+        this.commitLog = new CommitLog(this);//落地所有的元数据信息，数据可靠性保护
+        this.consumeQueueTable = new ConcurrentHashMap<>(32);//消费队列实现
 
-        this.flushConsumeQueueService = new FlushConsumeQueueService();
-        this.cleanCommitLogService = new CleanCommitLogService();
-        this.cleanConsumeQueueService = new CleanConsumeQueueService();
-        this.storeStatsService = new StoreStatsService();
-        this.indexService = new IndexService(this);
-        this.haService = new HAService(this);
+        this.flushConsumeQueueService = new FlushConsumeQueueService();// 逻辑队列刷盘服务
+        this.cleanCommitLogService = new CleanCommitLogService();//清理物理文件服务
+        this.cleanConsumeQueueService = new CleanConsumeQueueService();//清理逻辑文件服务
+        this.storeStatsService = new StoreStatsService();//  存储层内部统计服务
+        this.indexService = new IndexService(this);//消息索引服务
+        this.haService = new HAService(this);//HA服务，负责同步双写，异步复制功能
 
-        this.reputMessageService = new ReputMessageService();
+        this.reputMessageService = new ReputMessageService();// 从物理队列Load消息，并分发到各个逻辑队列
+        //reputMessageService依赖scheduleMessageService做定时消息的恢复，确保储备数据一致
 
-        this.scheduleMessageService = new ScheduleMessageService(this);
+        this.scheduleMessageService = new ScheduleMessageService(this);// 定时消息服务
 
         this.transientStorePool = new TransientStorePool(messageStoreConfig);
 
         if (messageStoreConfig.isTransientStorePoolEnable()) {
             this.transientStorePool.init();
         }
-
+    //  load过程依赖此服务，所以提前启动
         this.allocateMappedFileService.start();
-
+        //因为下面的recover会分发请求到索引服务，如果不启动，分发过程会被流控
         this.indexService.start();
 
-        this.dispatcherList = new LinkedList<>();
+        this.dispatcherList = new LinkedList<>();//   分发消息索引服务
         this.dispatcherList.addLast(new CommitLogDispatcherBuildConsumeQueue());
         this.dispatcherList.addLast(new CommitLogDispatcherBuildIndex());
     }
@@ -157,25 +158,29 @@ public class DefaultMessageStore implements MessageStore {
         boolean result = true;
 
         try {
-            boolean lastExitOK = !this.isTempFileExist();
+            boolean lastExitOK = !this.isTempFileExist();//是否是异常停机 根据store目录下 abort文件判断
             log.info("last shutdown {}", lastExitOK ? "normally" : "abnormally");
-
+            //load 定时进度
+            //这个步骤要放置到最前面，从CommitLog里Recover定时消息需要依赖加载的定时级别参数
+                   // slave依赖scheduleMessageService做定时消息的恢复
             if (null != scheduleMessageService) {
                 result = result && this.scheduleMessageService.load();
+                //加载延迟配置
             }
 
             // load Commit Log
             result = result && this.commitLog.load();
-
+            //加载消息物理文件 位置为commitlog
             // load Consume Queue
             result = result && this.loadConsumeQueue();
 
             if (result) {
+                // 记录存储模型最终一致的时间点
                 this.storeCheckpoint =
                     new StoreCheckpoint(StorePathConfigHelper.getStoreCheckpoint(this.messageStoreConfig.getStorePathRootDir()));
 
                 this.indexService.load(lastExitOK);
-
+                // 尝试恢复数据
                 this.recover(lastExitOK);
 
                 log.info("load over, and the max phy offset = {}", this.getMaxPhyOffset());

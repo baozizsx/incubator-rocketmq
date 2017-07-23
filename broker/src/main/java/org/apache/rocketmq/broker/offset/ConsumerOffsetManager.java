@@ -32,7 +32,17 @@ import org.apache.rocketmq.common.constant.LoggerName;
 import org.apache.rocketmq.remoting.protocol.RemotingSerializable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
+/*
+{
+           "offsetTable":{
+                  "TopicTest@haqiaolong":{0:750,2:750,1:750,3:750
+                   0：代码分区 750代表索引位置
+                   },
+                  "QuickStart@QuickStartConsumer":{0:250,2:250,1:250,3:250
+                  }
+             }
+         }
+ */
 public class ConsumerOffsetManager extends ConfigManager {
     private static final Logger log = LoggerFactory.getLogger(LoggerName.BROKER_LOGGER_NAME);
     private static final String TOPIC_GROUP_SEPARATOR = "@";
