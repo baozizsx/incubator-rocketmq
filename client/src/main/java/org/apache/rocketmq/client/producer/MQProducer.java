@@ -25,6 +25,12 @@ import org.apache.rocketmq.common.message.Message;
 import org.apache.rocketmq.common.message.MessageQueue;
 import org.apache.rocketmq.remoting.exception.RemotingException;
 
+/**
+ * 主要功能是发送消息
+ * 消息可以发给：MessageQueue  MessageQueueSelector
+ * 消息发送成功后可以执行SendCallback
+ * 批量发送消息
+ */
 public interface MQProducer extends MQAdmin {
     void start() throws MQClientException;
 

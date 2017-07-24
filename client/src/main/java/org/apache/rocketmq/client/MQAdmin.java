@@ -25,6 +25,9 @@ import org.apache.rocketmq.remoting.exception.RemotingException;
 /**
  * Base interface for MQ management
  */
+/*
+    1.主要功能：创建topic； 偏移offset； 消息的查询；
+ */
 public interface MQAdmin {
     /**
      * Creates an topic

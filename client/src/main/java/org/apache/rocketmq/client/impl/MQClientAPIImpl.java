@@ -163,7 +163,7 @@ public class MQClientAPIImpl {
         System.setProperty(RemotingCommand.REMOTING_VERSION_KEY, Integer.toString(MQVersion.CURRENT_VERSION));
     }
 
-    private final RemotingClient remotingClient;
+    private final RemotingClient remotingClient;//远程客户端调用类
     private final TopAddressing topAddressing;
     private final ClientRemotingProcessor clientRemotingProcessor;
     private String nameSrvAddr = null;
@@ -232,7 +232,7 @@ public class MQClientAPIImpl {
     public void shutdown() {
         this.remotingClient.shutdown();
     }
-
+    //创建订阅组
     public void createSubscriptionGroup(final String addr, final SubscriptionGroupConfig config, final long timeoutMillis)
         throws RemotingException, MQBrokerException, InterruptedException, MQClientException {
         RemotingCommand request = RemotingCommand.createRequestCommand(RequestCode.UPDATE_AND_CREATE_SUBSCRIPTIONGROUP, null);

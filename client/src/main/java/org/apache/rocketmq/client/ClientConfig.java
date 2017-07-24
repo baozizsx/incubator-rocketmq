@@ -23,6 +23,11 @@ import org.apache.rocketmq.remoting.common.RemotingUtil;
 /**
  * Client Common configuration
  */
+
+/**
+ * 客户端的配置：
+ *
+ */
 public class ClientConfig {
     public static final String SEND_MESSAGE_WITH_VIP_CHANNEL_PROPERTY = "com.rocketmq.sendMessageWithVIPChannel";
     private String namesrvAddr = System.getProperty(MixAll.NAMESRV_ADDR_PROPERTY, System.getenv(MixAll.NAMESRV_ADDR_ENV));
@@ -45,6 +50,10 @@ public class ClientConfig {
     private String unitName;
     private boolean vipChannelEnabled = Boolean.parseBoolean(System.getProperty(SEND_MESSAGE_WITH_VIP_CHANNEL_PROPERTY, "true"));
 
+    /**
+     * mqClientId = ClientIP@InstanceName@unitName
+     * @return
+     */
     public String buildMQClientId() {
         StringBuilder sb = new StringBuilder();
         sb.append(this.getClientIP());

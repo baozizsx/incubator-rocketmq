@@ -31,7 +31,7 @@ import org.apache.rocketmq.remoting.exception.RemotingCommandException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class RemotingCommand {
+public class RemotingCommand {//远程调用的命令
     public static final String SERIALIZE_TYPE_PROPERTY = "rocketmq.serialize.type";
     public static final String SERIALIZE_TYPE_ENV = "ROCKETMQ_SERIALIZE_TYPE";
     public static final String REMOTING_VERSION_KEY = "rocketmq.remoting.version";
@@ -44,7 +44,7 @@ public class RemotingCommand {
     // 1, Oneway
     // 1, RESPONSE_COMMAND
     private static final Map<Field, Annotation> NOT_NULL_ANNOTATION_CACHE = new HashMap<Field, Annotation>();
-    private static final String STRING_CANONICAL_NAME = String.class.getCanonicalName();
+    private static final String STRING_CANONICAL_NAME = String.class.getCanonicalName();//java.lang.String
     private static final String DOUBLE_CANONICAL_NAME_1 = Double.class.getCanonicalName();
     private static final String DOUBLE_CANONICAL_NAME_2 = double.class.getCanonicalName();
     private static final String INTEGER_CANONICAL_NAME_1 = Integer.class.getCanonicalName();
@@ -58,7 +58,7 @@ public class RemotingCommand {
 
     private static SerializeType serializeTypeConfigInThisServer = SerializeType.JSON;
 
-    static {
+    static {//环境变量获取序列化类型
         final String protocol = System.getProperty(SERIALIZE_TYPE_PROPERTY, System.getenv(SERIALIZE_TYPE_ENV));
         if (!isBlank(protocol)) {
             try {

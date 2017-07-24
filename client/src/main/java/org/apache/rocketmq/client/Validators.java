@@ -89,7 +89,7 @@ public class Validators {
      * @throws MQClientException
      */
     public static void checkMessage(Message msg, DefaultMQProducer defaultMQProducer)
-        throws MQClientException {
+        throws MQClientException {//判断空值
         if (null == msg) {
             throw new MQClientException(ResponseCode.MESSAGE_ILLEGAL, "the message is null");
         }

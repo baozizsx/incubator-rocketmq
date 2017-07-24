@@ -73,11 +73,13 @@ public class DefaultMQProducer extends ClientConfig implements MQProducer {
 
     /**
      * Just for testing or demo program
+     * 只是用于测试
      */
     private String createTopicKey = MixAll.DEFAULT_TOPIC;
 
     /**
      * Number of queues to create per default topic.
+     * 每个topic生成4个queue
      */
     private volatile int defaultTopicQueueNums = 4;
 
@@ -88,6 +90,7 @@ public class DefaultMQProducer extends ClientConfig implements MQProducer {
 
     /**
      * Compress message body threshold, namely, message body larger than 4k will be compressed on default.
+     * 消息大小超过4k就进行压缩
      */
     private int compressMsgBodyOverHowmuch = 1024 * 4;
 
@@ -96,6 +99,7 @@ public class DefaultMQProducer extends ClientConfig implements MQProducer {
      * </p>
      *
      * This may potentially cause message duplication which is up to application developers to resolve.
+     * 同步重试次数
      */
     private int retryTimesWhenSendFailed = 2;
 
@@ -104,16 +108,19 @@ public class DefaultMQProducer extends ClientConfig implements MQProducer {
      * </p>
      *
      * This may potentially cause message duplication which is up to application developers to resolve.
+     * 异步重试次数
      */
     private int retryTimesWhenSendAsyncFailed = 2;
 
     /**
      * Indicate whether to retry another broker on sending failure internally.
+     * 重试其他的broker
      */
     private boolean retryAnotherBrokerWhenNotStoreOK = false;
 
     /**
      * Maximum allowed message size in bytes.
+     * 消息大小最大是4m
      */
     private int maxMessageSize = 1024 * 1024 * 4; // 4M
 

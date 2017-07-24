@@ -83,15 +83,15 @@ import org.apache.rocketmq.remoting.protocol.RemotingCommand;
 import org.slf4j.Logger;
 
 public class MQClientInstance {
-    private final static long LOCK_TIMEOUT_MILLIS = 3000;
+    private final static long LOCK_TIMEOUT_MILLIS = 3000;//锁的超时时间
     private final Logger log = ClientLogger.getLog();
-    private final ClientConfig clientConfig;
-    private final int instanceIndex;
-    private final String clientId;
-    private final long bootTimestamp = System.currentTimeMillis();
-    private final ConcurrentMap<String/* group */, MQProducerInner> producerTable = new ConcurrentHashMap<String, MQProducerInner>();
-    private final ConcurrentMap<String/* group */, MQConsumerInner> consumerTable = new ConcurrentHashMap<String, MQConsumerInner>();
-    private final ConcurrentMap<String/* group */, MQAdminExtInner> adminExtTable = new ConcurrentHashMap<String, MQAdminExtInner>();
+    private final ClientConfig clientConfig;//配置：namesrvAddr；clientIP；instanceName；clientCallbackExecutorThreads；pollNameServerInterval；heartbeatBrokerInterval；persistConsumerOffsetInterval；vipChannelEnabled；unitMode；unitName
+    private final int instanceIndex;//第N个实例
+    private final String clientId;//mqClientId = ClientIP@InstanceName@unitName
+    private final long bootTimestamp = System.currentTimeMillis();//启动时间
+    private final ConcurrentMap<String/* group */, MQProducerInner> producerTable = new ConcurrentHashMap<String, MQProducerInner>();//某组对应的生产者
+    private final ConcurrentMap<String/* group */, MQConsumerInner> consumerTable = new ConcurrentHashMap<String, MQConsumerInner>();//某组对应的消费者
+    private final ConcurrentMap<String/* group */, MQAdminExtInner> adminExtTable = new ConcurrentHashMap<String, MQAdminExtInner>();//某组对应的管理者
     private final NettyClientConfig nettyClientConfig;
     private final MQClientAPIImpl mQClientAPIImpl;
     private final MQAdminImpl mQAdminImpl;

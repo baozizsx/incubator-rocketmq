@@ -86,6 +86,9 @@ import org.apache.rocketmq.tools.admin.api.MessageTrack;
 import org.apache.rocketmq.tools.admin.api.TrackType;
 import org.slf4j.Logger;
 
+/**
+ *所有运维方法的汇总
+ */
 public class DefaultMQAdminExtImpl implements MQAdminExt, MQAdminExtInner {
     private final Logger log = ClientLogger.getLog();
     private final DefaultMQAdminExt defaultMQAdminExt;

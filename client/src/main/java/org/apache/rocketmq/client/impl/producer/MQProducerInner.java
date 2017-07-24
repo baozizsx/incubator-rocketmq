@@ -21,6 +21,9 @@ import org.apache.rocketmq.client.producer.TransactionCheckListener;
 import org.apache.rocketmq.common.message.MessageExt;
 import org.apache.rocketmq.common.protocol.header.CheckTransactionStateRequestHeader;
 
+/**
+ * 主要是存放所有publishTopic列表；更新topicInfo
+ */
 public interface MQProducerInner {
     Set<String> getPublishTopicList();
 
