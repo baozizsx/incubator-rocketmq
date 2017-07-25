@@ -301,7 +301,7 @@ public class NettyRemotingClient extends NettyRemotingAbstract implements Remoti
             log.error("closeChannel exception", e);
         }
     }
-
+    //更新nameSrv的地址列表
     @Override
     public void updateNameServerAddressList(List<String> addrs) {
         List<String> old = this.namesrvAddrList.get();
@@ -321,7 +321,7 @@ public class NettyRemotingClient extends NettyRemotingAbstract implements Remoti
             }
 
             if (update) {
-                Collections.shuffle(addrs);
+                Collections.shuffle(addrs);//随机打乱原来的顺序
                 log.info("name server address updated. NEW : {} , OLD: {}",addrs,old);
                 this.namesrvAddrList.set(addrs);
             }

@@ -45,7 +45,7 @@ import org.apache.rocketmq.remoting.exception.RemotingCommandException;
 import org.apache.rocketmq.remoting.netty.NettyRequestProcessor;
 import org.apache.rocketmq.remoting.protocol.RemotingCommand;
 import org.slf4j.Logger;
-
+//客户端远程调用处理流程
 public class ClientRemotingProcessor implements NettyRequestProcessor {
     private final Logger log = ClientLogger.getLog();
     private final MQClientInstance mqClientFactory;
@@ -57,19 +57,19 @@ public class ClientRemotingProcessor implements NettyRequestProcessor {
     @Override
     public RemotingCommand processRequest(ChannelHandlerContext ctx, RemotingCommand request) throws RemotingCommandException {
         switch (request.getCode()) {
-            case RequestCode.CHECK_TRANSACTION_STATE:
+            case RequestCode.CHECK_TRANSACTION_STATE://检查事务状态
                 return this.checkTransactionState(ctx, request);
-            case RequestCode.NOTIFY_CONSUMER_IDS_CHANGED:
+            case RequestCode.NOTIFY_CONSUMER_IDS_CHANGED://通知消费者Id发生变化
                 return this.notifyConsumerIdsChanged(ctx, request);
-            case RequestCode.RESET_CONSUMER_CLIENT_OFFSET:
+            case RequestCode.RESET_CONSUMER_CLIENT_OFFSET://重置消费者客户端的偏移指针
                 return this.resetOffset(ctx, request);
-            case RequestCode.GET_CONSUMER_STATUS_FROM_CLIENT:
+            case RequestCode.GET_CONSUMER_STATUS_FROM_CLIENT://从客户端获取消费者状态
                 return this.getConsumeStatus(ctx, request);
 
-            case RequestCode.GET_CONSUMER_RUNNING_INFO:
+            case RequestCode.GET_CONSUMER_RUNNING_INFO://获取消费者运行状态
                 return this.getConsumerRunningInfo(ctx, request);
 
-            case RequestCode.CONSUME_MESSAGE_DIRECTLY:
+            case RequestCode.CONSUME_MESSAGE_DIRECTLY://获取消费者的消息存放目录
                 return this.consumeMessageDirectly(ctx, request);
             default:
                 break;

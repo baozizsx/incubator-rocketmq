@@ -52,6 +52,11 @@ import org.apache.rocketmq.remoting.exception.RemotingException;
  *     and used among multiple threads context.
  * </p>
  */
+
+/**
+ * 作为rocketmq生产者的默认实现,其实它并没有做任何实现，其内部引用一个DefaultMQProducerImpl实例进行具体消息发送。
+ 它有一些基础配置，比如多长时间内消息发送多少次还是没成功则放弃(默认为4秒内发送3次，每次发消息默认超时间为3秒)
+ */
 public class DefaultMQProducer extends ClientConfig implements MQProducer {
 
     /**
