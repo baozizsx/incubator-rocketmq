@@ -29,6 +29,15 @@ import org.slf4j.Logger;
 public class AllocateMessageQueueAveragely implements AllocateMessageQueueStrategy {
     private final Logger log = ClientLogger.getLog();
 
+    /**
+     *http://www.cnblogs.com/sunshine-2015/p/6295100.html
+     *
+     * @param consumerGroup current consumer group  消费者属组，此方法中只用于输出日志用
+     * @param currentCID current consumer id  cid，默认为ip@pid
+     * @param mqAll message queue set in current topic
+     * @param cidAll consumer set in current consumer group  同一consumer group下的所有的cid列表
+     * @return
+     */
     @Override
     public List<MessageQueue> allocate(String consumerGroup, String currentCID, List<MessageQueue> mqAll,
         List<String> cidAll) {

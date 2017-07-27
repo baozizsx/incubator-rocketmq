@@ -159,7 +159,7 @@ public class MQClientInstance {
             this.clientConfig, //
             MQVersion.getVersionDesc(MQVersion.CURRENT_VERSION), RemotingCommand.getSerializeTypeConfigInThisServer());
     }
-
+    //注意：返回可写的topicInfo   其中OrderTopicConf 只是针对写的   不针对读的
     public static TopicPublishInfo topicRouteData2TopicPublishInfo(final String topic, final TopicRouteData route) {
         TopicPublishInfo info = new TopicPublishInfo();
         info.setTopicRouteData(route);
@@ -536,7 +536,7 @@ public class MQClientInstance {
                         Long id = entry1.getKey();
                         String addr = entry1.getValue();
                         if (addr != null) {
-                            if (consumerEmpty) {
+                            if (consumerEmpty) {//没有消费者 同时不是masterId 则不发送心跳
                                 if (id != MixAll.MASTER_ID)
                                     continue;
                             }
@@ -547,7 +547,7 @@ public class MQClientInstance {
                                     this.brokerVersionTable.put(brokerName, new HashMap<String, Integer>(4));
                                 }
                                 this.brokerVersionTable.get(brokerName).put(addr, version);
-                                if (times % 20 == 0) {
+                                if (times % 20 == 0) {//每20次提升一下
                                     log.info("send heart beat to broker[{} {} {}] success", brokerName, id, addr);
                                     log.info(heartbeatData.toString());
                                 }

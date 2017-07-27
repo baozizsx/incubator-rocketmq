@@ -54,6 +54,13 @@ import org.apache.rocketmq.remoting.netty.ResponseFuture;
 import org.apache.rocketmq.remoting.protocol.RemotingCommand;
 import org.slf4j.Logger;
 
+/**
+ * 主要功能：
+ * 1.创建Topic
+ * 2.选择produce/subscribe的消息队列
+ * 3.指针偏移量
+ * 4.获取消息
+ */
 public class MQAdminImpl {
 
     private final Logger log = ClientLogger.getLog();
@@ -239,7 +246,7 @@ public class MQAdminImpl {
 
         throw new MQClientException("The broker[" + mq.getBrokerName() + "] not exist", null);
     }
-
+    //msgId = ip+port+offset
     public MessageExt viewMessage(String msgId) throws RemotingException, MQBrokerException, InterruptedException, MQClientException {
 
         MessageId messageId = null;

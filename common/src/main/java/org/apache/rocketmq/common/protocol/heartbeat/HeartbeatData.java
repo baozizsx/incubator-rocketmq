@@ -23,7 +23,9 @@ package org.apache.rocketmq.common.protocol.heartbeat;
 import java.util.HashSet;
 import java.util.Set;
 import org.apache.rocketmq.remoting.protocol.RemotingSerializable;
-
+/*
+    心跳机制
+ */
 public class HeartbeatData extends RemotingSerializable {
     private String clientID;
     private Set<ProducerData> producerDataSet = new HashSet<ProducerData>();

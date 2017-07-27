@@ -34,7 +34,7 @@ import org.apache.rocketmq.common.protocol.body.ProcessQueueInfo;
 import org.slf4j.Logger;
 
 /**
- * Queue consumption snapshot
+ * Queue consumption snapshot 队列消费快照
  */
 public class ProcessQueue {
     public final static long REBALANCE_LOCK_MAX_LIVE_TIME =
@@ -44,7 +44,7 @@ public class ProcessQueue {
     private final Logger log = ClientLogger.getLog();
     private final ReadWriteLock lockTreeMap = new ReentrantReadWriteLock();
     private final TreeMap<Long, MessageExt> msgTreeMap = new TreeMap<Long, MessageExt>();
-    private final AtomicLong msgCount = new AtomicLong();
+    private final AtomicLong msgCount = new AtomicLong();//处理的消息数量
     private final Lock lockConsume = new ReentrantLock();
     private final TreeMap<Long, MessageExt> msgTreeMapTemp = new TreeMap<Long, MessageExt>();
     private final AtomicLong tryUnlockTimes = new AtomicLong(0);
@@ -54,7 +54,7 @@ public class ProcessQueue {
     private volatile long lastConsumeTimestamp = System.currentTimeMillis();
     private volatile boolean locked = false;
     private volatile long lastLockTimestamp = System.currentTimeMillis();
-    private volatile boolean consuming = false;
+    private volatile boolean consuming = false;  //是否正在消费
     private volatile long msgAccCnt = 0;
 
     public boolean isLockExpired() {
@@ -139,7 +139,7 @@ public class ProcessQueue {
                 }
 
                 if (!msgs.isEmpty()) {
-                    MessageExt messageExt = msgs.get(msgs.size() - 1);
+                    MessageExt messageExt = msgs.get(msgs.size() - 1);//最后的消息
                     String property = messageExt.getProperty(MessageConst.PROPERTY_MAX_OFFSET);
                     if (property != null) {
                         long accTotal = Long.parseLong(property) - messageExt.getQueueOffset();
