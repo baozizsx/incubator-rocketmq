@@ -42,19 +42,25 @@ public class ProcessQueue {
     public final static long REBALANCE_LOCK_INTERVAL = Long.parseLong(System.getProperty("rocketmq.client.rebalance.lockInterval", "20000"));
     private final static long PULL_MAX_IDLE_TIME = Long.parseLong(System.getProperty("rocketmq.client.pull.pullMaxIdleTime", "120000"));
     private final Logger log = ClientLogger.getLog();
-    private final ReadWriteLock lockTreeMap = new ReentrantReadWriteLock();
-    private final TreeMap<Long, MessageExt> msgTreeMap = new TreeMap<Long, MessageExt>();
+    private final ReadWriteLock lockTreeMap = new ReentrantReadWriteLock();//消息映射读写锁
+    private final TreeMap<Long, MessageExt> msgTreeMap = new TreeMap<Long, MessageExt>();//消息映射  key：消息队列位置
     private final AtomicLong msgCount = new AtomicLong();//处理的消息数量
     private final Lock lockConsume = new ReentrantLock();
     private final TreeMap<Long, MessageExt> msgTreeMapTemp = new TreeMap<Long, MessageExt>();
     private final AtomicLong tryUnlockTimes = new AtomicLong(0);
-    private volatile long queueOffsetMax = 0L;
+    private volatile long queueOffsetMax = 0L;//添加消息最大队列位置
     private volatile boolean dropped = false;
     private volatile long lastPullTimestamp = System.currentTimeMillis();
     private volatile long lastConsumeTimestamp = System.currentTimeMillis();
     private volatile boolean locked = false;
     private volatile long lastLockTimestamp = System.currentTimeMillis();
     private volatile boolean consuming = false;  //是否正在消费
+    /**
+     23:  * Broker累计消息数量
+     24:  * 计算公式 = queueMaxOffset - 新添加消息数组[n - 1].queueOffset
+     25:  * Acc = Accumulation
+     26:  * cnt = （猜测）对比度
+     27:  */
     private volatile long msgAccCnt = 0;
 
     public boolean isLockExpired() {
@@ -118,6 +124,11 @@ public class ProcessQueue {
         }
     }
 
+    /**
+     * 添加消息，并返回是否提交给消费者
+     * @param msgs
+     * @return
+     */
     public boolean putMessage(final List<MessageExt> msgs) {
         boolean dispatchToConsume = false;
         try {
@@ -132,12 +143,12 @@ public class ProcessQueue {
                     }
                 }
                 msgCount.addAndGet(validMsgCnt);
-
+                // 计算是否正在消费
                 if (!msgTreeMap.isEmpty() && !this.consuming) {
                     dispatchToConsume = true;
                     this.consuming = true;
                 }
-
+                // Broker累计消息数量
                 if (!msgs.isEmpty()) {
                     MessageExt messageExt = msgs.get(msgs.size() - 1);//最后的消息
                     String property = messageExt.getProperty(MessageConst.PROPERTY_MAX_OFFSET);

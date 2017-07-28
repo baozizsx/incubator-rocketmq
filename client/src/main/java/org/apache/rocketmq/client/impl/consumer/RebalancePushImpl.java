@@ -62,6 +62,7 @@ public class RebalancePushImpl extends RebalanceImpl {
 
     @Override
     public boolean removeUnnecessaryMessageQueue(MessageQueue mq, ProcessQueue pq) {
+        // 同步队列的消费进度，并移除之。
         this.defaultMQPushConsumerImpl.getOffsetStore().persist(mq);
         this.defaultMQPushConsumerImpl.getOffsetStore().removeOffset(mq);
         if (this.defaultMQPushConsumerImpl.isConsumeOrderly()
@@ -71,7 +72,7 @@ public class RebalancePushImpl extends RebalanceImpl {
                     try {
                         return this.unlockDelay(mq, pq);
                     } finally {
-                        pq.getLockConsume().unlock();
+                            pq.getLockConsume().unlock();
                     }
                 } else {
                     log.warn("[WRONG]mq is consuming, so can not unlock it, {}. maybe hanged for a while, {}", //
@@ -112,12 +113,17 @@ public class RebalancePushImpl extends RebalanceImpl {
     }
 
     @Override
-    public void removeDirtyOffset(final MessageQueue mq) {
+    public void removeDirtyOffset(final MessageQueue mq) {//本地移除偏移指针
         this.defaultMQPushConsumerImpl.getOffsetStore().removeOffset(mq);
     }
 
+    /**
+     * 先从远程获取 么有远程offset  在做相应的处理
+     * @param mq
+     * @return
+     */
     @Override
-    public long computePullFromWhere(MessageQueue mq) {
+    public long computePullFromWhere(MessageQueue mq) {//远程获取消费进度读取
         long result = -1;
         final ConsumeFromWhere consumeFromWhere = this.defaultMQPushConsumerImpl.getDefaultMQPushConsumer().getConsumeFromWhere();
         final OffsetStore offsetStore = this.defaultMQPushConsumerImpl.getOffsetStore();
@@ -132,9 +138,9 @@ public class RebalancePushImpl extends RebalanceImpl {
                 }
                 // First start,no offset
                 else if (-1 == lastOffset) {
-                    if (mq.getTopic().startsWith(MixAll.RETRY_GROUP_TOPIC_PREFIX)) {
+                    if (mq.getTopic().startsWith(MixAll.RETRY_GROUP_TOPIC_PREFIX)) {//重试的topic是从first开始
                         result = 0L;
-                    } else {
+                    } else {//获取队列的最大值
                         try {
                             result = this.mQClientFactory.getMQAdminImpl().maxOffset(mq);
                         } catch (MQClientException e) {
@@ -146,7 +152,7 @@ public class RebalancePushImpl extends RebalanceImpl {
                 }
                 break;
             }
-            case CONSUME_FROM_FIRST_OFFSET: {
+            case CONSUME_FROM_FIRST_OFFSET: {// 远程没有就从0开始
                 long lastOffset = offsetStore.readOffset(mq, ReadOffsetType.READ_FROM_STORE);
                 if (lastOffset >= 0) {
                     result = lastOffset;
@@ -162,13 +168,13 @@ public class RebalancePushImpl extends RebalanceImpl {
                 if (lastOffset >= 0) {
                     result = lastOffset;
                 } else if (-1 == lastOffset) {
-                    if (mq.getTopic().startsWith(MixAll.RETRY_GROUP_TOPIC_PREFIX)) {
+                    if (mq.getTopic().startsWith(MixAll.RETRY_GROUP_TOPIC_PREFIX)) {//重试队列从最大offset开始
                         try {
                             result = this.mQClientFactory.getMQAdminImpl().maxOffset(mq);
                         } catch (MQClientException e) {
                             result = -1;
                         }
-                    } else {
+                    } else {//队列重新调用远程的时间戳offset
                         try {
                             long timestamp = UtilAll.parseDate(this.defaultMQPushConsumerImpl.getDefaultMQPushConsumer().getConsumeTimestamp(),
                                 UtilAll.YYYYMMDDHHMMSS).getTime();

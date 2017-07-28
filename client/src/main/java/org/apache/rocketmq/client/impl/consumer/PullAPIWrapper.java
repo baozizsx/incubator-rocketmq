@@ -71,7 +71,7 @@ public class PullAPIWrapper {
         final SubscriptionData subscriptionData) {
         PullResultExt pullResultExt = (PullResultExt) pullResult;
 
-        this.updatePullFromWhichNode(mq, pullResultExt.getSuggestWhichBrokerId());
+        this.updatePullFromWhichNode(mq, pullResultExt.getSuggestWhichBrokerId());// 更新消息队列拉取消息Broker编号的映射
         if (PullStatus.FOUND == pullResult.getPullStatus()) {
             ByteBuffer byteBuffer = ByteBuffer.wrap(pullResultExt.getMessageBinary());
             List<MessageExt> msgList = MessageDecoder.decodes(byteBuffer);
@@ -94,7 +94,7 @@ public class PullAPIWrapper {
                 filterMessageContext.setMsgList(msgListFilterAgain);
                 this.executeHook(filterMessageContext);
             }
-
+            // 设置消息队列当前最小/最大位置到消息拓展字段
             for (MessageExt msg : msgListFilterAgain) {
                 MessageAccessor.putProperty(msg, MessageConst.PROPERTY_MIN_OFFSET,
                     Long.toString(pullResult.getMinOffset()));
